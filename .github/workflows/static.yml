@@ -22,7 +22,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -31,12 +30,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Prepare static site
+        run: |
+          mkdir -p public
+          cp lic.html public/index.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-            path: 'public'  # or 'dist', 'build', '_site', etc.
+          path: 'public'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
