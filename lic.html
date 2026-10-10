@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+
+<html class="dark scroll-smooth" lang="en" rtrvr-gl-click="1" rtrvr-gl-input="1" rtrvr-gl-keydown="1"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Licensing a repository - GitHub Docs</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace],
+          },
+          colors: {
+            gh: {
+              canvas: '#0d1117',
+              bg: '#090d13',
+              sidebar: '#0d1117',
+              subtle: '#161b22',
+              card: '#161b22',
+              muted: '#21262d',
+              border: '#30363d',
+              borderSubtle: '#21262d',
+              text: '#f0f6fc',
+              textMuted: '#8b949e',
+              textSecondary: '#d0d7de',
+              heading: '#ffffff',
+              accent: '#58a6ff',
+              accentHover: '#79c0ff',
+              cyan: '#39c5bb',
+              green: '#238636',
+              greenHover: '#2ea043',
+              purple: '#a371f7',
+              gold: '#d29922',
+              coral: '#f85149',
+              codeBg: '#0d1117'
+            }
+          },
+          boxShadow: {
+            'primer': '0 0 0 1px #30363d, 0 8px 24px rgba(1,4,9,0.7)',
+            'portal': '0 0 0 1px #30363d, 0 16px 36px rgba(0,0,0,0.85)',
+            'terminal': '0 0 0 1px #30363d, inset 0 1px 0 rgba(255,255,255,0.06)',
+            'copilot': '0 0 0 1px rgba(56, 139, 253, 0.4), 0 4px 16px rgba(56, 139, 253, 0.15)',
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* GitHub Primer custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #58a6ff;
+    }
+
+    .shimmer-green-card {
+      background: #111a16;
+      border: 1px solid #2ea043;
+    }
+
+    .shimmer-green-card:hover {
+      border-color: #39c5bb;
+      box-shadow: 0 0 20px rgba(57, 197, 187, 0.2);
+    }
+
+    /* Reading progress bar */
+    #readingProgress {
+      height: 2px;
+      width: 0%;
+      transition: width 0.1s ease-out;
+    }
+
+    .toc-item.active {
+      color: #79c0ff;
+      font-weight: 600;
+      border-left-color: #58a6ff;
+    }
+  </style>
+</head>
+<body class="bg-[#090d13] text-[#f0f6fc] min-h-screen font-sans selection:bg-[#58a6ff]/30 selection:text-white antialiased relative">
+<!-- Active Procedural Video Background Shader with GitHub icon animation -->
+<!-- STITCH_SHADER_START:ANIMATION_14 class="fixed inset-0 w-full h-full -z-10 pointer-events-none opacity-35" -->
+<div class="fixed inset-0 w-full h-full -z-10 pointer-events-none opacity-35" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_14" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_14');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+varying vec2 v_texCoord;
+
+// SDF for GitHub Octocat silhouette / Logo shape
+float sdCircle(vec2 p, float r) {
+    return length(p) - r;
+}
+
+// Procedural GitHub Octocat mark SDF approximation
+float sdOctocat(vec2 p, float size) {
+    p /= size;
+    // Head circle
+    float d = length(p - vec2(0.0, -0.05)) - 0.45;
+    
+    // Ears
+    vec2 earL = p - vec2(-0.30, 0.32);
+    vec2 earR = p - vec2(0.30, 0.32);
+    float earDistL = length(vec2(earL.x * 1.3 + earL.y * 0.7, earL.y - earL.x * 0.4)) - 0.16;
+    float earDistR = length(vec2(earR.x * 1.3 - earR.y * 0.7, earR.y + earR.x * 0.4)) - 0.16;
+    d = min(d, min(earDistL, earDistR));
+    
+    // Body / shoulders
+    vec2 bodyP = p - vec2(0.0, -0.55);
+    float body = length(vec2(bodyP.x * 0.85, bodyP.y * 1.2)) - 0.45;
+    body = max(body, -p.y - 0.55);
+    d = min(d, body);
+    
+    return d * size;
+}
+
+// Git Branch / Commit Node icon SDF
+float sdGitBranch(vec2 p, float size) {
+    p /= size;
+    // Main vertical stem line
+    float stem = max(abs(p.x + 0.15) - 0.035, abs(p.y) - 0.4);
+    // Lower commit node
+    float nodeBottom = length(p - vec2(-0.15, -0.28)) - 0.11;
+    // Upper commit node on main
+    float nodeTop = length(p - vec2(-0.15, 0.28)) - 0.11;
+    // Branch node
+    float nodeBranch = length(p - vec2(0.2, 0.12)) - 0.11;
+    // Branch curve link
+    vec2 cp = p - vec2(-0.15, -0.1);
+    float curve = length(vec2(cp.x - 0.18 * smoothstep(-0.2, 0.25, cp.y), cp.y * 0.8)) - 0.04;
+    curve = max(curve, cp.x - 0.22);
+    curve = max(curve, -cp.x - 0.02);
+    
+    float d = min(stem, min(nodeBottom, min(nodeTop, min(nodeBranch, curve))));
+    return d * size;
+}
+
+// Pseudo hash for procedural grid scatter
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    vec2 p = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+    
+    // Deep high-contrast dark palette
+    vec3 col = vec3(0.025, 0.035, 0.055);
+    
+    // Ambient cyberspace grid
+    vec2 gridUv = fract(uv * vec2(32.0, 18.0) + vec2(0.0, u_time * 0.03));
+    float gridLine = (step(0.975, gridUv.x) + step(0.975, gridUv.y)) * 0.08;
+    col += vec3(0.15, 0.35, 0.7) * gridLine;
+    
+    // Flowing digital particles and floating GitHub icons
+    // Multiple layers of parallax icons
+    for (int i = 0; i < 9; i++) {
+        float fi = float(i);
+        float speed = 0.12 + fi * 0.04;
+        float t = u_time * speed + fi * 1.73;
+        
+        // Pseudo-random screen position based on index
+        vec2 iconPos;
+        iconPos.x = sin(fi * 2.4 + t * 0.6) * 1.35;
+        iconPos.y = fract(fi * 0.31 - t * 0.22) * 2.6 - 1.3;
+        
+        float scale = 0.22 + sin(fi * 3.1) * 0.08;
+        
+        // Choose between Octocat silhouette and Git branch node
+        float dIcon = 0.0;
+        if (mod(fi, 2.0) < 1.0) {
+            dIcon = sdOctocat(p - iconPos, scale);
+        } else {
+            dIcon = sdGitBranch(p - iconPos, scale);
+        }
+        
+        // Soft electric glow border and inner fill
+        float glow = exp(-abs(dIcon) * 22.0) * 0.45;
+        float core = smoothstep(0.015, -0.015, dIcon) * 0.25;
+        
+        vec3 iconCol = (mod(fi, 3.0) < 1.0) 
+            ? vec3(0.35, 0.65, 1.0)   // GitHub Electric Blue
+            : ((mod(fi, 3.0) < 2.0) 
+                ? vec3(0.65, 0.35, 1.0) // GitHub Copilot Violet
+                : vec3(0.15, 0.85, 0.75)); // Mint / Turquoise accent
+                
+        col += iconCol * (glow + core);
+    }
+    
+    // High-tech scanning line
+    float scanline = sin(uv.y * 120.0 + u_time * 3.5) * 0.025;
+    col += scanline;
+    
+    // Vignette for central readable content area
+    float vignette = clamp(1.0 - length((uv - 0.5) * 1.1), 0.25, 1.0);
+    col *= vignette;
+    
+    gl_FragColor = vec4(col, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_14 -->
+<!-- Toast Notification Feedback -->
+<div class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transform opacity-0 pointer-events-none transition-all duration-300 flex items-center space-x-2 px-4 py-2.5 rounded-lg bg-[#0d1117] border border-[#58a6ff] shadow-2xl text-xs font-semibold text-white" id="copyToast">
+<svg class="w-4 h-4 text-[#7ee787]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span class="" id="toastMessage">Copied to clipboard!</span>
+</div>
+<!-- 1. GLOBAL HEADER WITH COPILOT PROMPT INTEGRATION -->
+<header class="sticky top-0 z-40 bg-[#0d1117]/98 backdrop-blur-md border-b border-[#30363d] text-sm">
+<div class="max-w-[1440px] mx-auto px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
+<!-- Left: Logo & Primary Nav -->
+<div class="flex items-center space-x-4 shrink-0">
+<a class="text-white hover:text-[#58a6ff] transition-colors flex items-center gap-2.5 group" href="https://github.com">
+<svg class="fill-current text-white group-hover:text-[#58a6ff] transition-colors" height="28" viewbox="0 0 16 16" width="28">
+<path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+</svg>
+<span class="font-bold tracking-tight text-white group-hover:text-[#58a6ff] text-base">GitHub Docs</span>
+</a>
+<div class="hidden sm:flex items-center space-x-1 pl-2 border-l border-[#30363d] text-xs">
+<span class="px-2 py-0.5 rounded text-[#d0d7de] hover:text-white font-medium cursor-pointer transition-colors bg-[#161b22] border border-[#30363d]">Free, Pro &amp; Team</span>
+<svg class="w-3.5 h-3.5 text-[#8b949e]" fill="currentColor" viewbox="0 0 16 16"><path d="m4.427 7.427 3.396 3.396a.25.25 0 0 0 .354 0l3.396-3.396A.25.25 0 0 0 11.396 7H4.604a.25.25 0 0 0-.177.427Z"></path></svg>
+</div>
+</div>
+<!-- Center: Ask Copilot in Docs Omnibar -->
+<div class="flex-1 max-w-xl mx-2">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a371f7]">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 16 16">
+<path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7.28-3.22a.75.75 0 0 0-1.06 0L5.47 7.03a.75.75 0 0 0 1.06 1.06L7.25 7.37v4.88a.75.75 0 0 0 1.5 0V7.37l.72.72a.75.75 0 1 0 1.06-1.06L8.78 4.78Z"></path>
+</svg>
+</div>
+<input class="w-full bg-[#161b22] hover:bg-[#1c2128] focus:bg-[#0d1117] border border-[#30363d] focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff] rounded-lg pl-9 pr-14 py-1.5 text-xs text-white placeholder:text-[#8b949e] focus:outline-none transition-all shadow-inner" onkeydown="if(event.key === 'Enter') showToast('Copilot searching: ' + this.value)" placeholder="Ask Copilot or search GitHub Docs..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-2 flex items-center space-x-1 pointer-events-none">
+<kbd class="text-[10px] font-mono text-[#d0d7de] bg-[#21262d] px-1.5 py-0.5 rounded border border-[#30363d]">Ctrl</kbd>
+<kbd class="text-[10px] font-mono text-[#d0d7de] bg-[#21262d] px-1.5 py-0.5 rounded border border-[#30363d]">K</kbd>
+</div>
+</div>
+</div>
+<!-- Right: Documentation Links & Version Switcher -->
+<div class="flex items-center space-x-3 shrink-0 text-xs">
+<a class="hidden md:inline-flex items-center gap-1.5 text-[#d0d7de] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#161b22] border border-[#30363d] transition" href="https://choosealicense.com" rel="noopener noreferrer" target="_blank">
+<span class="text-[#7ee787]">●</span>
+<span class="font-medium">choosealicense.com</span>
+<svg class="w-3 h-3 text-[#8b949e]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+<div class="h-4 w-[1px] bg-[#30363d] hidden md:block"></div>
+<button class="text-[#d0d7de] hover:text-white p-1.5 rounded-md hover:bg-[#161b22] border border-[#30363d] transition" title="Language: English">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button class="bg-[#21262d] hover:bg-[#30363d] text-white font-semibold px-3 py-1.5 rounded-md border border-[#30363d] text-xs transition">
+          Sign In
+        </button>
+</div>
+</div>
+<!-- Reading Progress Bar (Pinned beneath header) -->
+<div class="w-full bg-[#30363d] h-[2px]">
+<div class="bg-gradient-to-r from-[#a371f7] via-[#58a6ff] to-[#7ee787]" id="readingProgress"></div>
+</div>
+</header>
+<!-- 2. STICKY SUB-BAR (BREADCRUMBS & SIDEBAR TOGGLE) -->
+<div class="sticky top-[66px] z-30 bg-[#0d1117]/98 backdrop-blur-md border-b border-[#30363d] px-4 lg:px-8 py-2.5 text-xs text-[#8b949e] flex items-center justify-between">
+<div class="flex items-center space-x-2 truncate">
+<!-- Mobile sidebar hamburger toggle -->
+<button class="lg:hidden p-1 mr-1 text-[#d0d7de] hover:text-white rounded border border-[#30363d] hover:bg-[#161b22]" onclick="toggleSidebar()">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<a class="hover:text-[#58a6ff] text-[#d0d7de] transition-colors" href="#repos">Repositories</a>
+<span class="text-[#30363d] select-none">/</span>
+<a class="hover:text-[#58a6ff] text-[#d0d7de] transition-colors truncate" href="#managing-files">Managing files</a>
+<span class="text-[#30363d] select-none">/</span>
+<span class="text-white font-semibold truncate">Licensing a repository</span>
+</div>
+<div class="flex items-center space-x-3 shrink-0">
+<span class="inline-flex items-center gap-1.5 bg-[#161b22] px-2.5 py-1 rounded border border-[#30363d] text-[11px] text-[#d0d7de] font-medium font-mono">
+<svg class="w-3.5 h-3.5 text-[#58a6ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">4 min read</span>
+</span>
+<button class="hover:text-[#58a6ff] text-[#d0d7de] flex items-center gap-1.5 transition text-[11px] font-medium px-2 py-1 bg-[#161b22] rounded border border-[#30363d]" onclick="copyMarkdownLink()" title="Copy Markdown link">
+<svg class="w-3 h-3 text-[#58a6ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="hidden sm:inline">Copy markdown</span>
+</button>
+</div>
+</div>
+<!-- 3. MAIN WORKSHOP & DOCUMENTATION 3-COLUMN LAYOUT -->
+<div class="max-w-[1440px] mx-auto px-4 lg:px-8 flex">
+<!-- LEFT SIDEBAR: DOCUMENTATION NAV TREE -->
+<aside class="hidden lg:block w-72 shrink-0 py-6 pr-6 border-r border-[#30363d] text-xs sticky top-[110px] h-[calc(100vh-110px)] overflow-y-auto bg-[#0d1117]/98" id="docsSidebar">
+<div class="space-y-6">
+<div>
+<h3 class="font-bold text-white uppercase tracking-wider text-[11px] mb-2 px-2 flex items-center justify-between">
+<span class="">Repositories</span>
+<span class="text-[10px] font-mono bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d] text-[#7ee787] font-semibold">v2.3</span>
+</h3>
+<ul class="space-y-1">
+<li class="">
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#161b22] transition" href="#about-repos">
+<span class="">About repositories</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#161b22] transition" href="#creating-repo">
+<span class="">Creating and managing</span>
+</a>
+</li>
+<li class="">
+<!-- Expanded section -->
+<div class="text-white font-semibold px-2.5 py-1.5 rounded-md bg-[#161b22] border border-[#30363d] flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<svg class="w-3 h-3 text-[#58a6ff]" fill="currentColor" viewbox="0 0 16 16"><path d="m4.427 7.427 3.396 3.396a.25.25 0 0 0 .354 0l3.396-3.396A.25.25 0 0 0 11.396 7H4.604a.25.25 0 0 0-.177.427Z"></path></svg>
+<span class="">Managing repository files</span>
+</span>
+</div>
+<ul class="pl-4 mt-1.5 space-y-1 border-l border-[#30363d] ml-3">
+<li class=""><a class="block px-2.5 py-1 rounded-md text-[#8b949e] hover:text-white hover:bg-[#161b22] transition" href="#managing-files">Adding a file to repository</a></li>
+<li class=""><a class="block px-2.5 py-1 rounded-md text-[#8b949e] hover:text-white hover:bg-[#161b22] transition" href="#editing-files">Editing files</a></li>
+<li class=""><a class="block px-2.5 py-1 rounded-md text-[#8b949e] hover:text-white hover:bg-[#161b22] transition" href="#renaming">Renaming a file</a></li>
+<li class="">
+<a class="block px-2.5 py-1 rounded-md font-bold text-[#79c0ff] bg-[#161b22] border-l-2 border-[#58a6ff] -ml-[1px]" href="#licensing">Licensing a repository</a>
+</li>
+<li class=""><a class="block px-2.5 py-1 rounded-md text-[#8b949e] hover:text-white hover:bg-[#161b22] transition" href="#code-owners">About code owners</a></li>
+</ul>
+</li>
+<li class="">
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#161b22] transition" href="#visibility">
+<span class="">Setting repository visibility</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#161b22] transition" href="#customizing-repo">
+<span class="">Customizing repository details</span>
+</a>
+</li>
+</ul>
+</div>
+<div>
+<h3 class="font-bold text-white uppercase tracking-wider text-[11px] mb-2 px-2">Workshops &amp; Guides</h3>
+<ul class="space-y-1">
+<li class=""><a class="block px-2.5 py-1.5 rounded-md text-[#d0d7de] hover:text-[#7ee787] hover:bg-[#161b22] transition flex items-center justify-between font-medium" href="https://choosealicense.com" target="_blank"><span class="">Choose a License Wizard</span><span class="text-[10px] text-[#7ee787] font-mono">↗</span></a></li>
+<li class=""><a class="block px-2.5 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#161b22] transition" href="#interactive-helper">Interactive Decision Matrix</a></li>
+<li class=""><a class="block px-2.5 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#161b22] transition" href="#search-table">License Qualifier Catalog</a></li>
+</ul>
+</div>
+</div>
+</aside>
+<!-- CENTER COLUMN: CORE DOCUMENTATION & INTERACTIVE WORKSHOP (DEVELOPER TERMINAL & FOCUS PORTAL) -->
+<main class="flex-1 min-w-0 py-8 lg:px-10 max-w-4xl">
+<!-- Article Heading Block -->
+<article class="space-y-8 bg-[#0d1117]/98 border border-[#30363d] rounded-2xl p-6 sm:p-8 shadow-portal" id="licensing">
+<!-- Badge & Title -->
+<header class="space-y-4 pb-6 border-b border-[#30363d]">
+<!-- Terminal Portal Header Bar -->
+<div class="flex items-center justify-between pb-3 border-b border-[#30363d]/80 text-xs font-mono text-[#8b949e]">
+<div class="flex items-center gap-2">
+<span class="inline-block w-3 h-3 rounded-full bg-[#f85149]"></span>
+<span class="inline-block w-3 h-3 rounded-full bg-[#d29922]"></span>
+<span class="inline-block w-3 h-3 rounded-full bg-[#238636]"></span>
+<span class="text-[#d0d7de] ml-1 font-semibold">docs.github.com / legal / licensing</span>
+</div>
+<span class="text-[#79c0ff] bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d]">WCAG AAA Standard</span>
+</div>
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#a371f7]/15 text-[#d2a8ff] border border-[#a371f7]/40 shadow-sm">
+<svg class="w-3.5 h-3.5 text-[#a371f7]" fill="currentColor" viewbox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7.28-3.22a.75.75 0 0 0-1.06 0L5.47 7.03a.75.75 0 0 0 1.06 1.06L7.25 7.37v4.88a.75.75 0 0 0 1.5 0V7.37l.72.72a.75.75 0 1 0 1.06-1.06L8.78 4.78Z"></path></svg>
+<span>Interactive Educational Workshop</span>
+</div>
+<h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            Licensing a repository
+          </h1>
+<p class="text-base text-[#f0f6fc] leading-relaxed max-w-3xl font-normal">
+            Public repositories on GitHub are often used to share open source software. For your repository to truly be open source, you'll need to license it so that others are free to use, change, and distribute the software.
+          </p>
+<!-- Article Quick Actions -->
+<div class="flex flex-wrap items-center gap-2 pt-1">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] hover:border-[#58a6ff] rounded-md text-xs font-semibold text-white transition shadow-sm" onclick="copyMarkdownSnippet()">
+<svg class="w-3.5 h-3.5 text-[#58a6ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Copy article link</span>
+</button>
+<a class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] hover:text-white rounded-md text-xs font-medium text-[#d0d7de] transition shadow-sm" href="https://github.com/github/docs/edit/main/content/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository.md" target="_blank">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Edit this doc</span>
+</a>
+</div>
+</header>
+<!-- SECTION 1: CHOOSING THE RIGHT LICENSE & INTERACTIVE DECISION MATRIX -->
+<section class="scroll-mt-32 space-y-4" id="choosing">
+<div class="flex items-center space-x-2">
+<span class="p-1.5 bg-[#161b22] text-[#58a6ff] rounded-lg border border-[#30363d]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</span>
+<h2 class="text-xl font-bold text-white">Choosing the right license</h2>
+</div>
+<p class="text-sm text-[#f0f6fc] leading-relaxed">
+            We created <a class="text-[#79c0ff] font-semibold hover:underline inline-flex items-center gap-0.5" href="https://choosealicense.com" target="_blank">choosealicense.com <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>, to help you understand how to license your code. A software license tells others what they can and cannot do with your source code, so it's critical to make an intentional decision.
+          </p>
+<!-- Interactive License Decision Matrix Workshop Component -->
+<div class="p-5 rounded-xl border border-[#30363d] bg-[#161b22] space-y-4 shadow-terminal" id="interactive-helper">
+<div class="flex items-center justify-between pb-3 border-b border-[#30363d]">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold uppercase tracking-wider text-[#d2a8ff]">Interactive Helper</span>
+<span class="text-xs text-[#d0d7de]">• Legal Impact Comparison</span>
+</div>
+<span class="text-[11px] text-[#8b949e] font-mono">Click card to simulate status</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Without License Card -->
+<div class="p-4 rounded-lg border border-[#30363d] bg-[#0d1117] hover:border-amber-500 cursor-pointer transition-all duration-200" id="card-matrix-none" onclick="selectMatrixCard('none')">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+<span class="font-bold text-xs text-amber-300 uppercase tracking-wider">Without a License</span>
+</div>
+<span class="text-[10px] bg-[#21262d] px-2 py-0.5 rounded text-[#d0d7de] font-mono border border-[#30363d]">Default Status</span>
+</div>
+<p class="text-xs text-[#f0f6fc] mb-3 leading-relaxed">
+                  Default copyright laws immediately apply. You retain all exclusive rights. Nobody may reproduce, redistribute, or build derivatives from your code without explicit legal permission.
+                </p>
+<div class="text-[11px] space-y-1.5 pt-2 border-t border-[#30363d]">
+<div class="flex items-center justify-between text-[#ffa198]">
+<span class="font-medium">Forking on GitHub allowed?</span>
+<span class="font-semibold font-mono">Yes (per GitHub ToS)</span>
+</div>
+<div class="flex items-center justify-between text-[#ff7b72]">
+<span class="font-medium">Commercial reuse allowed?</span>
+<span class="font-semibold font-mono">No</span>
+</div>
+</div>
+</div>
+<!-- With Open Source License Card -->
+<div class="shimmer-green-card p-4 rounded-lg cursor-pointer transition-all duration-200 ring-1 ring-[#2ea043]" id="card-matrix-open" onclick="selectMatrixCard('open')">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7ee787] opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#7ee787]"></span>
+</span>
+<span class="font-bold text-xs text-[#7ee787] uppercase tracking-wider">With Open Source License</span>
+</div>
+<span class="text-[10px] bg-[#238636] text-white px-2 py-0.5 rounded font-bold">Recommended</span>
+</div>
+<p class="text-xs text-[#f0f6fc] mb-3 leading-relaxed">
+                  Grants explicit permissions globally. Enables contributions, package distribution, community extensions, and automated vulnerability remediations through GitHub Dependabot.
+                </p>
+<div class="text-[11px] space-y-1.5 pt-2 border-t border-[#2ea043]/30">
+<div class="flex items-center justify-between text-[#7ee787]">
+<span class="font-medium">Open collaboration?</span>
+<span class="font-semibold font-mono">Protected &amp; Explicit</span>
+</div>
+<div class="flex items-center justify-between text-[#7ee787]">
+<span class="font-medium">Liability protection?</span>
+<span class="font-semibold font-mono">Yes (AS-IS Warranty)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Dynamic Decision Result Bar -->
+<div class="p-3 bg-[#0d1117] rounded-md border border-[#30363d] text-xs text-[#f0f6fc] flex items-center justify-between" id="matrixInsightBar">
+<span class="flex items-center gap-2">
+<span class="text-[#7ee787] font-bold">Recommended:</span>
+<span class="text-white">Include an open source license to invite contributions and establish legal clarity.</span>
+</span>
+<a class="text-[#79c0ff] hover:underline shrink-0 text-xs font-semibold" href="https://choosealicense.com" target="_blank">Start Wizard →</a>
+</div>
+</div>
+<!-- PRIMER ACCENT ALERT: NOTE CALLOUT -->
+<div class="my-4 p-4 rounded-lg bg-[#161b22] border-l-4 border-amber-400 border border-[#30363d] text-xs space-y-2">
+<div class="flex items-center gap-2 text-amber-300 font-bold text-sm">
+<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Note on GitHub Public Repositories</span>
+</div>
+<p class="text-[#f0f6fc] leading-relaxed">
+              If you publish your source code in a public repository on GitHub, according to the <a class="text-[#79c0ff] underline font-medium" href="https://docs.github.com/en/site-policy/github-terms/github-terms-of-service">Terms of Service</a>, other users of GitHub.com have the right to view and fork your repository. If you have already created a repository and no longer want users to have access to the repository, you can make the repository private. When you change the visibility of a repository to private, existing forks or local copies created by other users will still exist. For more information, see <a class="text-[#79c0ff] hover:underline font-medium" href="#visibility">Setting repository visibility</a>.
+            </p>
+</div>
+</section>
+<!-- SECTION 2: DETERMINING THE LOCATION OF YOUR LICENSE -->
+<section class="scroll-mt-32 space-y-4 pt-4 border-t border-[#30363d]" id="location">
+<div class="flex items-center space-x-2">
+<span class="p-1.5 bg-[#161b22] text-[#a371f7] rounded-lg border border-[#30363d]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</span>
+<h2 class="text-xl font-bold text-white">Determining the location of your license</h2>
+</div>
+<p class="text-sm text-[#f0f6fc] leading-relaxed">Most developers place their license text in a top-level file named <code class="px-1.5 py-0.5 rounded bg-[#21262d] text-[#7ee787] font-mono text-xs border border-[#30363d] font-semibold">LICENSE.txt</code> (or <code class="px-1.5 py-0.5 rounded bg-[#21262d] text-[#7ee787] font-mono text-xs border border-[#30363d] font-semibold">LICENSE.md</code> or <code class="px-1.5 py-0.5 rounded bg-[#21262d] text-[#7ee787] font-mono text-xs border border-[#30363d] font-semibold">LICENSE.rst</code>) in the root of the repository; here's an example standard structure:</p>
+<!-- Interactive File Explorer Diagram Component -->
+<div class="rounded-xl border border-[#30363d] bg-[#161b22] p-4 font-mono text-xs shadow-terminal">
+<div class="flex items-center justify-between pb-3 border-b border-[#30363d] text-[#8b949e] text-[11px]">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-[#58a6ff]" fill="currentColor" viewbox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8V1.5Z"></path></svg>
+<span class="text-white font-semibold">root / repository-explorer</span>
+</div>
+<span class="text-[#7ee787] flex items-center gap-1.5 text-[10px] font-sans font-semibold">
+<span class="w-2 h-2 rounded-full bg-[#7ee787]"></span> Standard Layout Detected
+</span>
+</div>
+<div class="mt-3 space-y-1.5">
+<!-- Primary LICENSE File Highlighted -->
+<div class="flex items-center justify-between px-3 py-2 rounded-lg bg-[#0d1117] border border-[#58a6ff] text-white group cursor-pointer hover:bg-[#161b22] transition">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-[#79c0ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="font-bold text-[#79c0ff]">LICENSE.txt</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-sans font-bold px-2 py-0.5 rounded bg-[#1f6feb] text-white">Top-level Detection</span>
+<button class="text-[#d0d7de] hover:text-white text-[10px] bg-[#21262d] px-2 py-0.5 rounded border border-[#30363d]" onclick="copyText('LICENSE.txt', 'Copied filename!')">Copy name</button>
+</div>
+</div>
+<!-- Other Repo Files -->
+<div class="flex items-center justify-between px-3 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#0d1117] transition">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-[#8b949e]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">README.md</span>
+</div>
+<span class="text-[10px] text-[#8b949e] font-sans">May link to LICENSE</span>
+</div>
+<div class="flex items-center justify-between px-3 py-1.5 rounded-md text-[#d0d7de] hover:text-white hover:bg-[#0d1117] transition">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-[#d29922]" fill="currentColor" viewbox="0 0 16 16"><path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>
+<span class="">src/</span>
+</div>
+<span class="text-[10px] text-[#8b949e] font-sans">Application Source</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-[#161b22] rounded-lg border border-[#30363d] text-xs flex items-start gap-3">
+<span class="text-base text-amber-300">💡</span>
+<div>
+<p class="font-bold text-white">Alternative in README:</p>
+<p class="text-[#f0f6fc] mt-1 leading-relaxed">
+                Some projects specify their license in their <code class="px-1.5 py-0.5 rounded bg-[#0d1117] text-[#7ee787] font-mono text-[11px] border border-[#30363d]">README.md</code>, such as: 
+                <span class="italic text-white">"This project is licensed under the terms of the MIT license."</span> However, adding an independent license file ensures automatic GitHub API detection and UI badges.
+              </p>
+</div>
+</div>
+</section>
+<!-- SECTION 3: SEARCHING GITHUB BY LICENSE TYPE & FILTERABLE CATALOG -->
+<section class="scroll-mt-32 space-y-4 pt-4 border-t border-[#30363d]" id="search-table">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="p-1.5 bg-[#161b22] text-[#7ee787] rounded-lg border border-[#30363d]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</span>
+<h2 class="text-xl font-bold text-white">Searching GitHub by license type</h2>
+</div>
+</div>
+<p class="text-sm text-[#f0f6fc] leading-relaxed">You can filter repositories based on their license or license family across GitHub Search using the <code class="px-1.5 py-0.5 rounded bg-[#21262d] text-[#7ee787] font-mono text-xs border border-[#30363d] font-semibold">license:</code> qualifier and the exact license keyword.</p>
+<!-- Interactive Search Filter & Query Builder Tool -->
+<div class="p-4 bg-[#161b22] border border-[#30363d] rounded-xl space-y-3 shadow-terminal">
+<!-- Active Query Preview Bar -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 p-2.5 bg-[#0d1117] rounded-lg border border-[#30363d] font-mono text-xs">
+<div class="flex items-center gap-2 overflow-x-auto py-1">
+<span class="text-[#d2a8ff] font-bold shrink-0">Search query:</span>
+<span class="text-[#79c0ff] font-bold bg-[#161b22] px-2.5 py-1 rounded border border-[#30363d] whitespace-nowrap" id="activeQueryBar">license:mit</span>
+</div>
+<button class="px-3 py-1 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded border border-[#30363d] flex items-center justify-center gap-1.5 text-xs transition active:scale-95 shrink-0" id="btnCopyQuery" onclick="copyCurrentQuery()">
+<svg class="w-3.5 h-3.5 text-[#58a6ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Copy Query</span>
+</button>
+</div>
+<!-- Tab Filter Chips (Popular, Permissive, Copyleft, All) & Text Filter -->
+<div class="flex flex-col sm:flex-row gap-2 pt-1">
+<div class="flex items-center gap-1.5 overflow-x-auto text-xs pb-1">
+<button class="cat-pill active px-3 py-1 rounded-full bg-[#1f6feb] text-white border border-[#58a6ff] font-semibold" onclick="setCategoryFilter('all')">All</button>
+<button class="cat-pill px-3 py-1 rounded-full bg-[#21262d] hover:bg-[#30363d] text-[#d0d7de] hover:text-white border border-[#30363d] font-medium transition" onclick="setCategoryFilter('popular')">Popular</button>
+<button class="cat-pill px-3 py-1 rounded-full bg-[#21262d] hover:bg-[#30363d] text-[#d0d7de] hover:text-white border border-[#30363d] font-medium transition" onclick="setCategoryFilter('permissive')">Permissive</button>
+<button class="cat-pill px-3 py-1 rounded-full bg-[#21262d] hover:bg-[#30363d] text-[#d0d7de] hover:text-white border border-[#30363d] font-medium transition" onclick="setCategoryFilter('copyleft')">Copyleft</button>
+</div>
+<!-- Search input -->
+<div class="relative flex-1">
+<input class="w-full bg-[#0d1117] border border-[#30363d] text-white font-medium rounded-lg pl-8 pr-16 py-1.5 text-xs focus:ring-1 focus:ring-[#58a6ff] focus:border-[#58a6ff] outline-none" id="licenseSearchInput" oninput="handleLicenseSearch()" placeholder="Filter licenses (e.g. Apache, BSD, GPL, MIT)..." type="text"/>
+<svg class="w-3.5 h-3.5 text-[#8b949e] absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="absolute right-2.5 top-2 text-[10px] font-mono text-[#d0d7de] bg-[#21262d] px-1.5 py-0.5 rounded border border-[#30363d]" id="resultCountBadge">33 items</span>
+</div>
+</div>
+<!-- Complete Table -->
+<div class="border border-[#30363d] rounded-lg overflow-hidden max-h-96 overflow-y-auto bg-[#0d1117]">
+<table class="w-full text-left text-xs border-collapse">
+<thead class="sticky top-0 bg-[#161b22] border-b border-[#30363d] text-[#d0d7de] uppercase text-[10px] font-bold tracking-wider z-10">
+<tr>
+<th class="px-4 py-2.5">License Title</th>
+<th class="px-4 py-2.5">Type</th>
+<th class="px-4 py-2.5 text-right">Keyword Qualifier</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#30363d]" id="licenseTableBody">
+<!-- MIT -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="popular permissive" onclick="selectLicenseRow('mit', this)">
+<td class="px-4 py-2.5 font-semibold text-white flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#7ee787]"></span>
+<span class="">MIT License</span>
+</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">mit</td>
+</tr>
+<!-- Apache-2.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="popular permissive" onclick="selectLicenseRow('apache-2.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#7ee787]"></span>
+<span class="">Apache License 2.0</span>
+</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">apache-2.0</td>
+</tr>
+<!-- GPL-3.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="popular copyleft" onclick="selectLicenseRow('gpl-3.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#a371f7]"></span>
+<span class="">GNU General Public License v3.0</span>
+</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Copyleft</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">gpl-3.0</td>
+</tr>
+<!-- GPL Family -->
+<tr class="lic-row bg-[#161b22]/70 hover:bg-[#21262d] cursor-pointer transition" data-cat="copyleft" onclick="selectLicenseRow('gpl', this)">
+<td class="px-4 py-2.5 font-bold text-[#d2a8ff] flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#a371f7]"></span>
+<span class="">GNU General Public License family</span>
+</td>
+<td class="px-4 py-2.5 text-[#d2a8ff] font-mono text-[10px] font-semibold">Family</td>
+<td class="px-4 py-2.5 font-mono text-[#a371f7] font-bold text-right">gpl</td>
+</tr>
+<!-- BSD-3-Clause -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="popular permissive" onclick="selectLicenseRow('bsd-3-clause', this)">
+<td class="px-4 py-2.5 font-semibold text-white">BSD 3-clause "New" or "Revised" license</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">bsd-3-clause</td>
+</tr>
+<!-- BSD-2-Clause -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('bsd-2-clause', this)">
+<td class="px-4 py-2.5 font-semibold text-white">BSD 2-clause "Simplified" license</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">bsd-2-clause</td>
+</tr>
+<!-- 0BSD -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('0bsd', this)">
+<td class="px-4 py-2.5 font-semibold text-white">BSD Zero-Clause license</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">0bsd</td>
+</tr>
+<!-- CC0-1.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('cc0-1.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white">Creative Commons Zero v1.0 Universal</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Public Domain</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">cc0-1.0</td>
+</tr>
+<!-- CC Family -->
+<tr class="lic-row bg-[#161b22]/70 hover:bg-[#21262d] cursor-pointer transition" data-cat="popular" onclick="selectLicenseRow('cc', this)">
+<td class="px-4 py-2.5 font-bold text-[#d2a8ff] flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#a371f7]"></span>
+<span class="">Creative Commons license family</span>
+</td>
+<td class="px-4 py-2.5 text-[#d2a8ff] font-mono text-[10px] font-semibold">Family</td>
+<td class="px-4 py-2.5 font-mono text-[#a371f7] font-bold text-right">cc</td>
+</tr>
+<!-- MPL-2.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="copyleft" onclick="selectLicenseRow('mpl-2.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white">Mozilla Public License 2.0</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Weak Copyleft</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">mpl-2.0</td>
+</tr>
+<!-- AGPL-3.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="copyleft" onclick="selectLicenseRow('agpl-3.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white">GNU Affero General Public License v3.0</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Strong Copyleft</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">agpl-3.0</td>
+</tr>
+<!-- LGPL-3.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="copyleft" onclick="selectLicenseRow('lgpl-3.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white">GNU Lesser General Public License v3.0</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Weak Copyleft</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">lgpl-3.0</td>
+</tr>
+<!-- Unlicense -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('unlicense', this)">
+<td class="px-4 py-2.5 font-semibold text-white">The Unlicense</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Public Domain</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">unlicense</td>
+</tr>
+<!-- ISC -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('isc', this)">
+<td class="px-4 py-2.5 font-semibold text-white">ISC License</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">isc</td>
+</tr>
+<!-- Eclipse Public License 2.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="copyleft" onclick="selectLicenseRow('epl-2.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white">Eclipse Public License 2.0</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Weak Copyleft</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">epl-2.0</td>
+</tr>
+<!-- Academic Free License v3.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('afl-3.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white">Academic Free License v3.0</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">afl-3.0</td>
+</tr>
+<!-- Boost Software License 1.0 -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('bsl-1.0', this)">
+<td class="px-4 py-2.5 font-semibold text-white">Boost Software License 1.0</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">bsl-1.0</td>
+</tr>
+<!-- Zlib -->
+<tr class="lic-row hover:bg-[#161b22] cursor-pointer transition" data-cat="permissive" onclick="selectLicenseRow('zlib', this)">
+<td class="px-4 py-2.5 font-semibold text-white">zLib License</td>
+<td class="px-4 py-2.5 text-[#d0d7de]">Permissive</td>
+<td class="px-4 py-2.5 font-mono text-[#79c0ff] font-bold text-right">zlib</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Family Qualifier Information Box -->
+<div class="p-3.5 rounded-lg bg-[#161b22] border border-[#30363d] text-xs text-[#f0f6fc] leading-relaxed flex items-start gap-2.5">
+<svg class="w-4 h-4 text-[#a371f7] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<div class="">
+              When you search by a family license, your results will include all licenses in that family. For example, when you use the query <code class="px-1.5 py-0.5 rounded bg-[#0d1117] text-[#7ee787] font-mono border border-[#30363d] font-semibold">license:gpl</code>, your results will include repositories licensed under GNU General Public License v2.0 and GNU General Public License v3.0.
+            </div>
+</div>
+</section>
+<!-- SECTION 4: DETECTING A LICENSE & CLI TOOLING -->
+<section class="scroll-mt-32 space-y-4 pt-4 border-t border-[#30363d]" id="detecting">
+<div class="flex items-center space-x-2">
+<span class="p-1.5 bg-[#161b22] text-amber-400 rounded-lg border border-[#30363d]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</span>
+<h2 class="text-xl font-bold text-white">Detecting a license</h2>
+</div>
+<p class="text-sm text-[#f0f6fc] leading-relaxed">
+            GitHub uses <span class="font-bold text-white">Licensee</span>, an open source Ruby gem that compares the repository's LICENSE file against known SPDX database signatures to automatically generate repo badges and power API insights.
+          </p>
+<!-- CLI Interactive Code Snippet Card -->
+<div class="p-4 rounded-xl bg-[#161b22] border border-[#30363d] space-y-3 shadow-terminal">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-[#f85149]"></span>
+<span class="font-mono text-xs font-bold text-white">licensee CLI</span>
+<span class="text-[10px] bg-[#0d1117] px-2 py-0.5 rounded text-[#7ee787] font-mono border border-[#30363d] font-semibold">Ruby Gem &amp; API</span>
+</div>
+<a class="text-xs text-[#79c0ff] hover:underline font-semibold flex items-center gap-1" href="https://github.com/licensee/licensee" target="_blank">
+<span class="">View source</span>
+<svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+</div>
+<!-- Terminal block -->
+<div class="p-3 bg-[#090d13] rounded-lg border border-[#30363d] font-mono text-xs flex items-center justify-between group hover:border-[#58a6ff] transition">
+<div class="flex items-center space-x-2 text-white">
+<span class="text-[#8b949e] select-none font-bold">$</span>
+<span class="text-[#7ee787] font-semibold">gem install licensee</span>
+</div>
+<button class="text-[#d0d7de] hover:text-white p-1 rounded bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] transition" onclick="copyText('gem install licensee', 'Copied gem install command!')" title="Copy snippet">
+<svg class="w-4 h-4 text-[#79c0ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="p-3 bg-[#090d13] rounded-lg border border-[#30363d] font-mono text-xs flex items-center justify-between group hover:border-[#58a6ff] transition">
+<div class="flex items-center space-x-2 text-white">
+<span class="text-[#8b949e] select-none font-bold">$</span>
+<span class="text-[#79c0ff] font-semibold">licensee detect .</span>
+</div>
+<button class="text-[#d0d7de] hover:text-white p-1 rounded bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] transition" onclick="copyText('licensee detect .', 'Copied licensee detect!')" title="Copy snippet">
+<svg class="w-4 h-4 text-[#79c0ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<p class="text-xs text-[#d0d7de] leading-relaxed">
+              If your repository uses a license that is not recognized or not displaying clearly at the top of the repository page, it may contain multiple licenses or custom modifications. Simplify your LICENSE file and move secondary credits to README.
+            </p>
+</div>
+</section>
+<!-- SECTION 5: APPLYING A LICENSE (WORKFLOW GUIDE) -->
+<section class="scroll-mt-32 space-y-4 pt-4 border-t border-[#30363d]" id="applying">
+<div class="flex items-center space-x-2">
+<span class="p-1.5 bg-[#161b22] text-[#58a6ff] rounded-lg border border-[#30363d]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</span>
+<h2 class="text-xl font-bold text-white">Applying a license to a repository</h2>
+</div>
+<p class="text-sm text-[#f0f6fc] leading-relaxed">
+            The built-in license template picker is presented when creating a new project on GitHub or manually creating a LICENSE file in the browser:
+          </p>
+<!-- Step-by-step interactive workflow walkthrough -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div class="p-3.5 rounded-lg border border-[#30363d] bg-[#161b22] space-y-1.5 hover:border-[#58a6ff] transition">
+<div class="w-6 h-6 rounded-full bg-[#1f6feb] text-white flex items-center justify-center font-bold text-xs">1</div>
+<h4 class="font-bold text-white text-xs">Navigate to Root</h4>
+<p class="text-[11px] text-[#d0d7de] leading-relaxed">Click <strong class="text-white">Add file</strong> → <strong class="text-white">Create new file</strong> in your GitHub repository main branch.</p>
+</div>
+<div class="p-3.5 rounded-lg border border-[#30363d] bg-[#161b22] space-y-1.5 hover:border-[#58a6ff] transition">
+<div class="w-6 h-6 rounded-full bg-[#1f6feb] text-white flex items-center justify-center font-bold text-xs">2</div>
+<h4 class="font-bold text-white text-xs">Type LICENSE</h4>
+<p class="text-[11px] text-[#d0d7de] leading-relaxed">In the filename field, enter <code class="font-mono text-[#7ee787] font-bold">LICENSE</code>. The template button activates automatically.</p>
+</div>
+<div class="p-3.5 rounded-lg border border-[#30363d] bg-[#161b22] space-y-1.5 hover:border-[#58a6ff] transition">
+<div class="w-6 h-6 rounded-full bg-[#1f6feb] text-white flex items-center justify-center font-bold text-xs">3</div>
+<h4 class="font-bold text-white text-xs">Choose &amp; Commit</h4>
+<p class="text-[11px] text-[#d0d7de] leading-relaxed">Select your desired license from the dropdown, review year &amp; fullname, and commit directly.</p>
+</div>
+</div>
+</section>
+<!-- SECTION 6: LEGAL DISCLAIMER -->
+<section class="scroll-mt-32 pt-4 border-t border-[#30363d]" id="disclaimer">
+<div class="p-4 rounded-xl border border-[#30363d] bg-[#161b22] text-xs text-[#d0d7de] leading-relaxed space-y-2">
+<div class="flex items-center space-x-2 text-white font-bold text-sm">
+<svg class="w-4 h-4 text-[#8b949e]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Disclaimer</span>
+</div>
+<p class="text-[#f0f6fc]">
+              The goal of GitHub's open source licensing efforts is to provide a starting point to help you make an informed choice. GitHub displays license information to help users get information about open source licenses and the projects that use them. We hope it helps, but please keep in mind that we’re not lawyers and that we make mistakes like everyone else. For that reason, GitHub provides the information on an "as-is" basis and makes no warranties regarding any information or licenses provided on or through it, and disclaims liability for damages resulting from using the license information. If you have questions regarding the right license for your code or any legal issues, consult a qualified attorney.
+            </p>
+</div>
+</section>
+<!-- SECTION 7: FURTHER READING -->
+<section class="scroll-mt-32 pt-4 border-t border-[#30363d]" id="further-reading">
+<h3 class="text-xs font-bold uppercase tracking-wider text-white mb-3">Further reading</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+<a class="p-3 rounded-lg bg-[#161b22] border border-[#30363d] hover:border-[#58a6ff] hover:text-[#79c0ff] transition flex items-center justify-between group shadow-sm" href="https://choosealicense.com" target="_blank">
+<div>
+<div class="font-bold text-white group-hover:text-[#79c0ff]">Choose a License Guide</div>
+<div class="text-[11px] text-[#8b949e]">choosealicense.com non-profit guidance</div>
+</div>
+<svg class="w-4 h-4 text-[#8b949e] group-hover:text-[#79c0ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+<a class="p-3 rounded-lg bg-[#161b22] border border-[#30363d] hover:border-[#58a6ff] hover:text-[#79c0ff] transition flex items-center justify-between group shadow-sm" href="https://opensource.guide/legal-and-compliance/" target="_blank">
+<div>
+<div class="font-bold text-white group-hover:text-[#79c0ff]">Open Source Guide: Legal</div>
+<div class="text-[11px] text-[#8b949e]">Community guides to compliance</div>
+</div>
+<svg class="w-4 h-4 text-[#8b949e] group-hover:text-[#79c0ff]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+</div>
+</section>
+</article>
+<!-- 4. DOC FEEDBACK & CONTRIBUTION SURVEY SECTION -->
+<section class="mt-10 pt-6 border-t border-[#30363d] space-y-4">
+<!-- Helpful Radiogroup Survey -->
+<div class="p-5 rounded-xl border border-[#30363d] bg-[#0d1117]/98 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-terminal">
+<div>
+<h4 class="text-sm font-bold text-white">Did this article help you?</h4>
+<p class="text-xs text-[#8b949e]">Help us make GitHub Docs better for developers worldwide.</p>
+</div>
+<div class="flex items-center space-x-2 shrink-0">
+<button class="survey-btn inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#2ea043] hover:text-[#7ee787] text-xs font-semibold text-white transition shadow-sm" onclick="submitHelpful('yes')">
+<svg class="w-3.5 h-3.5 text-[#7ee787]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Yes</span>
+</button>
+<button class="survey-btn inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#f85149] hover:text-[#ff7b72] text-xs font-semibold text-white transition shadow-sm" onclick="submitHelpful('no')">
+<svg class="w-3.5 h-3.5 text-[#ff7b72]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">No</span>
+</button>
+</div>
+</div>
+<!-- Open Source PR Contribution Banner -->
+<div class="p-4 rounded-xl border border-[#30363d] bg-[#0d1117]/98 flex items-center justify-between gap-4 shadow-terminal">
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5 text-[#58a6ff] shrink-0" fill="currentColor" viewbox="0 0 16 16"><path d="M7.177 3.073L9.573.677A.25.25 0 0 1 10 .854v4.792a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm-2.25.75a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm2.25 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm9-6.5a2.25 2.25 0 1 0-.75 4.372v1.256a2.251 2.251 0 1 0 1.5 0V9.372A2.25 2.25 0 0 0 12.75 5Zm0 1.5a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Zm0 8.5a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"></path></svg>
+<div>
+<p class="text-xs font-bold text-white">Want to contribute to GitHub Docs?</p>
+<p class="text-[11px] text-[#8b949e]">This documentation site is fully open source. Fork the repo and submit a pull request.</p>
+</div>
+</div>
+<a class="shrink-0 text-xs font-bold text-white hover:text-[#58a6ff] px-3.5 py-1.5 rounded-lg border border-[#30363d] bg-[#161b22] hover:bg-[#21262d] transition" href="https://github.com/github/docs" target="_blank">
+            github/docs
+          </a>
+</div>
+</section>
+</main>
+<!-- RIGHT COLUMN: STICKY IN-THIS-ARTICLE TABLE OF CONTENTS -->
+<aside class="hidden xl:block w-64 shrink-0 py-8 pl-6 sticky top-[110px] h-[calc(100vh-110px)] overflow-y-auto text-xs bg-[#0d1117]/98 border-l border-[#30363d]">
+<div class="space-y-3">
+<h3 class="font-bold text-white uppercase tracking-wider text-[11px]">In this article</h3>
+<nav class="space-y-1 border-l border-[#30363d]">
+<a class="toc-item active block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#choosing">Choosing a license</a>
+<a class="toc-item block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#interactive-helper">Decision Matrix Helper</a>
+<a class="toc-item block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#location">File location</a>
+<a class="toc-item block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#search-table">Search qualifiers</a>
+<a class="toc-item block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#detecting">Detecting with Licensee</a>
+<a class="toc-item block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#applying">Applying a license</a>
+<a class="toc-item block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#disclaimer">Disclaimer</a>
+<a class="toc-item block pl-3 py-1 text-[#8b949e] hover:text-white border-l-2 border-transparent -ml-[1px] transition" href="#further-reading">Further reading</a>
+</nav>
+<!-- Quick Help Box in Sidebar -->
+<div class="mt-8 p-3 rounded-lg bg-[#161b22] border border-[#30363d] text-[11px] space-y-2">
+<div class="font-bold text-white flex items-center gap-1.5">
+<span class="text-[#d2a8ff]">✨</span> Need instant guidance?
+          </div>
+<p class="text-[#d0d7de] leading-relaxed">
+            Unsure between MIT, Apache, and GPL? Choose a license helps non-lawyers decide in 3 clicks.
+          </p>
+<a class="text-[#79c0ff] font-bold hover:underline inline-block" href="https://choosealicense.com" target="_blank">Visit choosealicense.com →</a>
+</div>
+</div>
+</aside>
+</div>
+<!-- 5. COMPREHENSIVE GITHUB DOCS FOOTER -->
+<footer class="mt-20 border-t border-[#30363d] bg-[#0d1117] text-xs text-[#8b949e] py-12 px-6">
+<div class="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-5 gap-8">
+<!-- Col 1: Brand & Copyright -->
+<div class="col-span-2 space-y-3">
+<div class="flex items-center space-x-2">
+<svg class="fill-current text-white" height="24" viewbox="0 0 16 16" width="24">
+<path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+</svg>
+<span class="font-bold text-white">GitHub Docs</span>
+</div>
+<p class="text-xs text-[#8b949e] max-w-sm">
+          © 2025 GitHub, Inc. Licensed under CC BY 4.0. Part of the GitHub Open Source Documentation ecosystem.
+        </p>
+</div>
+<!-- Col 2: Product -->
+<div class="space-y-2">
+<h5 class="font-bold text-white uppercase tracking-wider text-[11px]">Product</h5>
+<ul class="space-y-1.5 font-medium">
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://github.com/features">GitHub Features</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://github.com/features/copilot">GitHub Copilot</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://github.com/security">Security</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://github.com/pricing">Pricing</a></li>
+</ul>
+</div>
+<!-- Col 3: Resources -->
+<div class="space-y-2">
+<h5 class="font-bold text-white uppercase tracking-wider text-[11px]">Resources</h5>
+<ul class="space-y-1.5 font-medium">
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://github.blog">GitHub Blog</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://github.community">Community Forum</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://skills.github.com">GitHub Skills</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://status.github.com">Status</a></li>
+</ul>
+</div>
+<!-- Col 4: Legal & Policy -->
+<div class="space-y-2">
+<h5 class="font-bold text-white uppercase tracking-wider text-[11px]">Legal</h5>
+<ul class="space-y-1.5 font-medium">
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://docs.github.com/site-policy/github-terms">Terms of Service</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://docs.github.com/site-policy/privacy-policies">Privacy Policy</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://choosealicense.com">Choose a License</a></li>
+<li class=""><a class="hover:text-[#58a6ff] transition" href="https://github.com/site-policy">Site Policy</a></li>
+</ul>
+</div>
+</div>
+</footer>
+<!-- JAVASCRIPT: LOGIC & WORKSHOP INTERACTIONS -->
+<script>
+    let toastTimer;
+
+    function showToast(message) {
+      const toast = document.getElementById('copyToast');
+      const toastMessage = document.getElementById('toastMessage');
+      toastMessage.innerText = message || 'Copied!';
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'pointer-events-auto');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'pointer-events-auto');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2200);
+    }
+
+    function copyText(str, msg) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(str).then(() => showToast(msg || `Copied "${str}"`));
+      } else {
+        showToast(msg || `Copied "${str}"`);
+      }
+    }
+
+    function copyMarkdownLink() {
+      const md = `[Licensing a repository - GitHub Docs](${window.location.href})`;
+      copyText(md, 'Copied Markdown link to clipboard!');
+    }
+
+    function copyMarkdownSnippet() {
+      copyText(window.location.href, 'Copied URL to clipboard!');
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('docsSidebar');
+      sb.classList.toggle('hidden');
+    }
+
+    // License Decision Helper interactive selection
+    function selectMatrixCard(type) {
+      const cardNone = document.getElementById('card-matrix-none');
+      const cardOpen = document.getElementById('card-matrix-open');
+      const insightBar = document.getElementById('matrixInsightBar');
+
+      if (type === 'none') {
+        cardNone.classList.add('ring-2', 'ring-amber-500', 'bg-[#161b22]');
+        cardOpen.classList.remove('ring-1', 'ring-[#2ea043]');
+        insightBar.innerHTML = `
+          <span class="flex items-center gap-2">
+            <span class="text-amber-400 font-bold">Unlicensed State:</span>
+            <span class="text-white">All rights reserved. Others cannot legally reuse, distribute or deploy your code.</span>
+          </span>
+          <button onclick="selectMatrixCard('open')" class="text-[#79c0ff] hover:underline text-xs font-bold">Switch to Open Source →</button>
+        `;
+      } else {
+        cardNone.classList.remove('ring-2', 'ring-amber-500', 'bg-[#161b22]');
+        cardOpen.classList.add('ring-1', 'ring-[#2ea043]');
+        insightBar.innerHTML = `
+          <span class="flex items-center gap-2">
+            <span class="text-[#7ee787] font-bold">Recommended:</span>
+            <span class="text-white">Include an open source license to invite contributions and establish legal clarity.</span>
+          </span>
+          <a href="https://choosealicense.com" target="_blank" class="text-[#79c0ff] hover:underline shrink-0 text-xs font-bold">Start Wizard →</a>
+        `;
+      }
+    }
+
+    // Table Row Selection & Query generator
+    function selectLicenseRow(kw, rowElement) {
+      const activeBar = document.getElementById('activeQueryBar');
+      activeBar.innerText = `license:${kw.toLowerCase()}`;
+
+      document.querySelectorAll('.lic-row').forEach(r => r.classList.remove('bg-[#1f6feb]/30'));
+      if (rowElement) {
+        rowElement.classList.add('bg-[#1f6feb]/30');
+      }
+
+      copyText(`license:${kw.toLowerCase()}`, `Copied "license:${kw.toLowerCase()}" query!`);
+    }
+
+    function copyCurrentQuery() {
+      const text = document.getElementById('activeQueryBar').innerText;
+      copyText(text, `Copied "${text}" query!`);
+    }
+
+    // Category Tabs filter
+    let activeCategory = 'all';
+
+    function setCategoryFilter(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        btn.classList.remove('bg-[#1f6feb]', 'text-white', 'border-[#58a6ff]', 'font-semibold');
+        btn.classList.add('bg-[#21262d]', 'text-[#d0d7de]', 'border-[#30363d]');
+      });
+      event.target.classList.remove('bg-[#21262d]', 'text-[#d0d7de]', 'border-[#30363d]');
+      event.target.classList.add('bg-[#1f6feb]', 'text-white', 'border-[#58a6ff]', 'font-semibold');
+      handleLicenseSearch();
+    }
+
+    function handleLicenseSearch() {
+      const query = document.getElementById('licenseSearchInput').value.toLowerCase().trim();
+      const rows = document.querySelectorAll('.lic-row');
+      let visible = 0;
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const catData = row.getAttribute('data-cat') || '';
+        const matchesCategory = (activeCategory === 'all') || catData.includes(activeCategory);
+        const matchesQuery = text.includes(query);
+
+        if (matchesCategory && matchesQuery) {
+          row.style.display = '';
+          visible++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      document.getElementById('resultCountBadge').innerText = `${visible} items`;
+    }
+
+    // Survey feedback
+    function submitHelpful(resp) {
+      showToast(resp === 'yes' ? 'Thanks for the feedback! 💚' : 'Thank you, we will improve this document.');
+    }
+
+    // Reading Progress & ScrollSpy for Right TOC
+    window.addEventListener('scroll', () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (window.scrollY / totalHeight) * 100;
+      document.getElementById('readingProgress').style.width = `${Math.min(100, Math.max(0, progress))}%`;
+
+      // ScrollSpy
+      const sections = ['choosing', 'interactive-helper', 'location', 'search-table', 'detecting', 'applying', 'disclaimer', 'further-reading'];
+      const scrollPos = window.scrollY + 140;
+
+      let current = '';
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollPos) {
+          current = id;
+        }
+      });
+
+      const tocItems = document.querySelectorAll('.toc-item');
+      tocItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === `#${current}`) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }, { passive: true });
+  </script>
+</body></html>
